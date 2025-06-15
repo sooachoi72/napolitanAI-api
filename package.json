@@ -1,0 +1,21 @@
+{
+  "name": "assign2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/genai": "^1.5.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.0.1"
+  }
+}

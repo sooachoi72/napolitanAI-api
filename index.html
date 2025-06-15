@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나폴리탄 괴담 메이커</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .title {
+            text-align: center;
+            color: #780606;
+        }
+
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+        }
+
+        #messages {
+            height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: fit-content;
+            word-break: break-word;
+        }
+
+        .user-message {
+            background: #780606;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background: #2a2a2a;
+            color: white;
+            align-self: flex-start;
+        }
+
+        .ai-message .profile {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 2px solid #780606;
+        }
+
+        #keyword {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #780606;
+            border-radius: 25px;
+            background: #1a1a1a;
+            color: white;
+            font-size: 16px;
+        }
+
+        #send {
+            margin-left: 10px;
+            padding: 12px 25px;
+            background: #780606;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #send:hover {
+            background: #5a0404;
+        }
+
+        .loading {
+            color: #999;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="title">🔮 나폴리탄 괴담 메이커</h1>
+    </header>
+
+    <main>
+        <div class="chat-container">
+            <div id="messages"></div>
+            <div class="input-area">
+                <input type="text" id="keyword" placeholder="괴담 소재 키워드 입력 (예: 스파게티, 엘리베이터...)" autocomplete="off">
+                <button id="send">전송</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const messages = document.getElementById('messages');
+        const keywordInput = document.getElementById('keyword');
+        const sendButton = document.getElementById('send');
+
+        function addMessage(text, isUserMessage = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUserMessage ? 'message user-message' : 'message ai-message';
+
+            if (!isUserMessage) {
+                const profile = document.createElement('span');
+                profile.className = 'profile';
+                profile.textContent = '👻';
+                messageDiv.appendChild(profile);
+            }
+
+            const messageText = document.createElement('span');
+            messageText.textContent = text;
+            messageDiv.appendChild(messageText);
+
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function generateGhostStory(keyword) {
+            try {
+                const loading = document.createElement('div');
+                loading.className = 'loading';
+                loading.textContent = '괴담 생성 중...';
+                messages.appendChild(loading);
+
+                const response = await fetch('https://assign2-five-rosy.vercel.app/api/napolitanAI', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keyword })
+                });
+
+                messages.removeChild(loading);
+
+                const data = await response.json();
+                if (data.story) {
+                    addMessage(data.story);
+                } else {
+                    addMessage('괴담 생성에 실패했습니다 😱');
+                }
+            } catch (err) {
+                addMessage('서버 연결 오류! 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        sendButton.addEventListener('click', () => {
+            const keyword = keywordInput.value.trim();
+            if (keyword) {
+                addMessage(keyword, true);
+                generateGhostStory(keyword);
+                keywordInput.value = '';
+            }
+        });
+
+        keywordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendButton.click();
+        });
+    </script>
+</body>
+</html>
